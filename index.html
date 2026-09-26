@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OPX Schedule — October 2026</title>
+<style>
+:root{
+  --navy:#0d1117;--navy2:#161b22;--navy3:#21262d;--border:#30363d;
+  --green:#2ea043;--green2:#3fb950;--yellow:#d29922;--red:#f85149;
+  --blue:#58a6ff;--purple:#bc8cff;--orange:#f0883e;--pink:#f778ba;
+  --text:#e6edf3;--text2:#8b949e;--text3:#484f58;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--navy);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px}
+.app{display:flex;height:100vh;overflow:hidden}
+/* SIDEBAR */
+.sidebar{width:300px;min-width:300px;background:var(--navy2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sidebar-head{padding:16px;border-bottom:1px solid var(--border)}
+.sidebar-head h2{font-size:15px;font-weight:600;color:var(--text);margin-bottom:2px}
+.sidebar-head .sub{font-size:11px;color:var(--text2)}
+.clock-bar{background:var(--navy3);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:8px}
+.clock-badge{background:#1f2937;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:12px;font-weight:600;font-family:monospace;color:var(--blue);letter-spacing:.5px}
+.clock-label{font-size:11px;color:var(--text2)}
+.whosOn{flex:1;overflow-y:auto;padding:12px}
+.wo-section{margin-bottom:14px}
+.wo-section-head{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:4px 6px;border-radius:4px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.wo-live .wo-section-head{background:rgba(46,160,67,.15);color:var(--green2)}
+.wo-soon .wo-section-head{background:rgba(210,153,34,.12);color:var(--yellow)}
+.wo-later .wo-section-head{background:rgba(88,166,255,.08);color:var(--blue)}
+.wo-done .wo-section-head{background:rgba(139,148,158,.08);color:var(--text3)}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--green2);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+.wo-card{background:var(--navy3);border:1px solid var(--border);border-radius:6px;padding:7px 10px;margin-bottom:5px;display:flex;align-items:center;gap:8px}
+.wo-card.live{border-left:3px solid var(--green2)}
+.wo-card.soon{border-left:3px solid var(--yellow)}
+.wo-card.later{border-left:3px solid var(--blue)}
+.wo-card.done{opacity:.5}
+.wo-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.g1-av{background:rgba(88,166,255,.2);color:var(--blue)}
+.g2-av{background:rgba(63,185,80,.2);color:var(--green2)}
+.g3-av{background:rgba(240,136,62,.2);color:var(--orange)}
+.wo-info{flex:1;min-width:0}
+.wo-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wo-shift{font-size:10px;color:var(--text2);margin-top:1px}
+.wo-badge{font-size:10px;padding:2px 6px;border-radius:10px;white-space:nowrap;flex-shrink:0}
+.wo-badge.live{background:rgba(46,160,67,.2);color:var(--green2)}
+.wo-badge.soon{background:rgba(210,153,34,.2);color:var(--yellow)}
+.wo-badge.later{background:rgba(88,166,255,.15);color:var(--blue)}
+.wo-badge.done{background:rgba(139,148,158,.1);color:var(--text3)}
+.wo-empty{text-align:center;padding:20px;color:var(--text3);font-size:12px}
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:var(--navy2);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.topbar h1{font-size:15px;font-weight:700;color:var(--text);flex:1}
+.nav-btn{background:var(--navy3);border:1px solid var(--border);border-radius:6px;color:var(--text2);padding:5px 12px;cursor:pointer;font-size:12px}
+.nav-btn:hover{background:var(--border);color:var(--text)}
+.today-btn{background:rgba(88,166,255,.1);border-color:var(--blue);color:var(--blue)}
+.today-btn:hover{background:rgba(88,166,255,.2)}
+.day-label{font-size:13px;font-weight:600;color:var(--text);min-width:120px;text-align:center}
+.tab-bar{background:var(--navy2);border-bottom:1px solid var(--border);padding:0 16px;display:flex;gap:4px;flex-shrink:0}
+.tab{padding:8px 14px;border-radius:6px 6px 0 0;cursor:pointer;font-size:12px;color:var(--text2);border:1px solid transparent;border-bottom:none;margin-bottom:-1px}
+.tab:hover{color:var(--text);background:var(--navy3)}
+.tab.active{color:var(--text);background:var(--navy);border-color:var(--border);border-bottom-color:var(--navy)}
+.content{flex:1;overflow:auto;padding:16px}
+/* TABLE VIEW */
+.sched-table{border-collapse:collapse;width:max-content;min-width:100%}
+.sched-table th,.sched-table td{padding:0;border:none}
+.wk-header{background:var(--navy3);font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text2);text-align:center;padding:5px 4px;border:1px solid var(--border)}
+.wk-header.cur{background:rgba(88,166,255,.08);color:var(--blue);border-color:rgba(88,166,255,.3)}
+.day-th{background:var(--navy3);font-size:10px;color:var(--text2);text-align:center;padding:4px 2px;border:1px solid var(--border);min-width:92px;max-width:92px;width:92px}
+.day-th.today{background:rgba(88,166,255,.1);color:var(--blue)}
+.day-th .dn{font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px}
+.day-th .dd{font-size:11px;font-weight:600;margin-top:1px}
+.name-th{background:var(--navy3);font-size:11px;font-weight:600;color:var(--text);padding:4px 8px;border:1px solid var(--border);min-width:150px;max-width:150px;text-align:left;position:sticky;left:0;z-index:5}
+.section-row td{background:rgba(88,166,255,.06);color:var(--blue);font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:5px 8px;border:1px solid var(--border)}
+.emp-name-cell{background:var(--navy2);border:1px solid var(--border);padding:4px 8px;position:sticky;left:0;z-index:3}
+.emp-name{font-size:11px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px}
+.emp-tz{font-size:9px;color:var(--text3);margin-top:1px}
+.sc{border:1px solid var(--border);text-align:center;padding:2px;height:36px;vertical-align:middle;cursor:pointer;position:relative}
+.sc:hover{filter:brightness(1.2)}
+.sv{font-size:11px;font-weight:500;line-height:1.2}
+.sc.g3 .sv{font-size:10px}
+.s-early{background:rgba(188,140,255,.12);color:var(--purple)}
+.s-mid{background:rgba(88,166,255,.1);color:var(--blue)}
+.s-late{background:rgba(46,160,67,.1);color:var(--green2)}
+.s-night{background:rgba(240,136,62,.1);color:var(--orange)}
+.s-overnight{background:rgba(248,113,113,.1);color:var(--red)}
+.s-off{background:transparent;color:var(--text3)}
+.s-blank{background:transparent}
+.s-today{outline:2px solid var(--blue);outline-offset:-2px}
+.s-predict{background:rgba(46,160,67,.15);color:var(--green2)}
+.note-dot{position:absolute;top:2px;right:2px;width:5px;height:5px;border-radius:50%;background:var(--yellow);opacity:.8}
+/* EVENT ROW */
+.event-row td{background:var(--navy3);border:1px solid var(--border);padding:3px 4px;text-align:center;font-size:10px}
+.ev-pill{display:inline-flex;align-items:center;gap:3px;background:rgba(210,153,34,.12);border:1px solid rgba(210,153,34,.25);border-radius:10px;padding:2px 6px;color:var(--yellow);font-size:9px;white-space:nowrap}
+/* NOTES/COVERAGE */
+.nc-row td{border:1px solid var(--border);padding:3px 4px;text-align:center;font-size:10px;color:var(--text2)}
+/* DAY VIEW */
+.day-view{max-width:700px}
+.dv-head{font-size:18px;font-weight:700;margin-bottom:16px;color:var(--text)}
+.dv-section{margin-bottom:20px}
+.dv-section-title{font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--text2);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.dv-row{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:6px;margin-bottom:4px;background:var(--navy2);border:1px solid var(--border)}
+.dv-row:hover{border-color:var(--blue)}
+.dv-name{font-size:12px;font-weight:600;min-width:140px}
+.dv-shift{font-size:11px;color:var(--text2)}
+.dv-off{opacity:.35}
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:20px;width:340px;max-width:90vw}
+.modal h3{font-size:14px;font-weight:700;margin-bottom:12px;color:var(--text)}
+.modal textarea{width:100%;background:var(--navy3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px;font-size:12px;resize:vertical;min-height:80px;font-family:inherit}
+.modal-footer{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
+.btn-save{background:var(--green);border:none;border-radius:6px;color:#fff;padding:6px 16px;cursor:pointer;font-size:12px}
+.btn-clear{background:var(--navy3);border:1px solid var(--border);border-radius:6px;color:var(--text2);padding:6px 16px;cursor:pointer;font-size:12px}
+.btn-cancel{background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text2);padding:6px 16px;cursor:pointer;font-size:12px}
+/* Star badge */
+.star-badge{position:absolute;top:1px;left:2px;font-size:9px;line-height:1}
+/* Scrollbar */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--navy)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.events-legend{font-size:10px;color:var(--text2);padding:8px 16px;border-top:1px solid var(--border);background:var(--navy2);flex-shrink:0}
+/* Directory */
+.dir-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+.dir-card{background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:flex-start;gap:10px;transition:border-color .15s,background .15s}
+.dir-card:hover{border-color:var(--blue);background:var(--navy3)}
+.dir-av{background:rgba(210,153,34,.25);color:var(--yellow)}
+.lead-av{background:rgba(188,140,255,.2);color:var(--purple)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-head">
+      <h2>OPX — October 2026</h2>
+      <div class="sub">Operations &amp; Product Experience · ET clock</div>
+    </div>
+    <div class="clock-bar">
+      <span class="clock-badge" id="etClock">--:-- --</span>
+      <span class="clock-label">Eastern Time</span>
+    </div>
+    <div class="whosOn" id="whosOn"></div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <h1 id="mainTitle">OPX — October 2026</h1>
+      <button class="nav-btn today-btn" onclick="goToday()">Today</button>
+      <button class="nav-btn" onclick="navDay(-1)">‹ Prev</button>
+      <span class="day-label" id="dayLabel"></span>
+      <button class="nav-btn" onclick="navDay(1)">Next ›</button>
+    </div>
+    <div class="tab-bar">
+      <div class="tab active" id="tab-table" onclick="setView('table')">Full Schedule</div>
+      <div class="tab" id="tab-day" onclick="setView('day')">Day View</div>
+      <div class="tab" id="tab-dir" onclick="setView('dir')">Directory</div>
+    </div>
+    <div class="content" id="mainContent"></div>
+  </div>
+</div>
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">Cell Note</h3>
+    <textarea id="modalText" placeholder="Add a note…"></textarea>
+    <div class="modal-footer">
+      <button class="btn-clear" onclick="clearNote()">Clear</button>
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveNote()">Save</button>
+    </div>
+  </div>
+</div>
+<script>
+// ── DATA ──────────────────────────────────────────────
+const DATES=[
+  {d:'9/26',dy:'Sat'},{d:'9/27',dy:'Sun'},{d:'9/28',dy:'Mon'},{d:'9/29',dy:'Tue'},{d:'9/30',dy:'Wed'},
+  {d:'10/1',dy:'Thu'},{d:'10/2',dy:'Fri'},{d:'10/3',dy:'Sat'},{d:'10/4',dy:'Sun'},{d:'10/5',dy:'Mon'},
+  {d:'10/6',dy:'Tue'},{d:'10/7',dy:'Wed'},{d:'10/8',dy:'Thu'},{d:'10/9',dy:'Fri'},{d:'10/10',dy:'Sat'},
+  {d:'10/11',dy:'Sun'},{d:'10/12',dy:'Mon'},{d:'10/13',dy:'Tue'},{d:'10/14',dy:'Wed'},{d:'10/15',dy:'Thu'},
+  {d:'10/16',dy:'Fri'},{d:'10/17',dy:'Sat'},{d:'10/18',dy:'Sun'},{d:'10/19',dy:'Mon'},{d:'10/20',dy:'Tue'},
+  {d:'10/21',dy:'Wed'},{d:'10/22',dy:'Thu'},{d:'10/23',dy:'Fri'},{d:'10/24',dy:'Sat'},{d:'10/25',dy:'Sun'},
+  {d:'10/26',dy:'Mon'},{d:'10/27',dy:'Tue'},{d:'10/28',dy:'Wed'},{d:'10/29',dy:'Thu'},{d:'10/30',dy:'Fri'},
+  {d:'10/31',dy:'Sat'},{d:'11/1',dy:'Sun'},{d:'11/2',dy:'Mon'},{d:'11/3',dy:'Tue'},{d:'11/4',dy:'Wed'},
+  {d:'11/5',dy:'Thu'},{d:'11/6',dy:'Fri'},{d:'11/7',dy:'Sat'}
+];
+const WEEKS=[
+  {label:'Sep 26',span:1,start:0,current:true},
+  {label:'Sep 27–Oct 3',span:7,start:1},
+  {label:'Oct 4–10',span:7,start:8},
+  {label:'Oct 11–17',span:7,start:15},
+  {label:'Oct 18–24',span:7,start:22},
+  {label:'Oct 25–31',span:7,start:29},
+  {label:'Nov 1–7',span:7,start:36}
+];
+const G1=[
+  {n:'Aashini Desai',tz:'NY',s:['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']},
+  {n:'Corey Southern',tz:'PST',s:['OFF','OFF','1 PM - 9 PM','1 PM - 9 PM','1 PM - 9 PM','1 PM - 9 PM','1 PM - 9 PM','OFF','OFF','1 PM - 9 PM','1 PM - 9 PM','1 PM - 9 PM','1 PM - 9 PM','1 PM - 9 PM','OFF','OFF','OFF','1 PM - 9 PM','1 PM - 9 PM','1 PM - 9 PM','1 PM - 9 PM','OFF','OFF','1 PM - 9 PM','1 PM - 9 PM','1 PM - 9 PM','1 PM - 9 PM','1 PM - 9 PM','OFF','OFF','1 PM - 9 PM','1 PM - 9 PM','1 PM - 9 PM','1 PM - 9 PM','1 PM - 9 PM','OFF','OFF','1 PM - 9 PM','1 PM - 9 PM','1 PM - 9 PM','1 PM - 9 PM','1 PM - 9 PM','OFF']},
+  {n:'Elijah Jones',tz:'NY',s:['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']},
+  {n:'Kyle O\'Connell',tz:'NY',s:['OFF','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','OFF','OFF','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF']},
+  {n:'Michael Thompson',tz:'NY',s:['OFF','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','OFF','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF']},
+  {n:'Connor Shaw',tz:'ATL',s:['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']},
+  {n:'Niall Connolly',tz:'Ireland',s:['OFF','OFF','5 AM - 1 PM','5 AM - 1 PM','5 AM - 1 PM','5 AM - 1 PM','5 AM - 1 PM','OFF','OFF','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']},
+  {n:'Darren Doyle',tz:'Ireland',s:['OFF','OFF','5 AM - 1 PM','5 AM - 1 PM','5 AM - 1 PM','OFF','OFF','5 AM - 1 PM','5 AM - 1 PM','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']},
+  {n:'Mahima Munjal',tz:'Ireland',s:['5 AM - 1 PM','5 AM - 1 PM','OFF','5 AM - 1 PM','5 AM - 1 PM','5 AM - 1 PM','5 AM - 1 PM','OFF','OFF','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']},
+  {n:'Shane McCabe',tz:'Ireland',s:['OFF','OFF','OFF','OFF','5 AM - 1 PM','5 AM - 1 PM','5 AM - 1 PM','OFF','OFF','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']},
+  {n:'William Eklund',tz:'PDX',s:['11 AM - 7 PM','11 AM - 7 PM','OFF','11 AM - 7 PM','11 AM - 7 PM','11 AM - 7 PM','OFF','11 AM - 7 PM','OFF','11 AM - 7 PM','11 AM - 7 PM','11 AM - 7 PM','11 AM - 7 PM','11 AM - 7 PM','OFF','OFF','11 AM - 7 PM','11 AM - 7 PM','11 AM - 7 PM','11 AM - 7 PM','11 AM - 7 PM','OFF','OFF','11 AM - 7 PM','11 AM - 7 PM','11 AM - 7 PM','11 AM - 7 PM','11 AM - 7 PM','OFF','OFF','11 AM - 7 PM','11 AM - 7 PM','11 AM - 7 PM','11 AM - 7 PM','OFF','11 AM - 7 PM','OFF','11 AM - 7 PM','11 AM - 7 PM','11 AM - 7 PM','11 AM - 7 PM','11 AM - 7 PM','OFF']},
+  {n:'Cydney Tindal',tz:'PST',s:['OFF','OFF','2 PM - 10 PM','2 PM - 10 PM','2 PM - 10 PM','3 PM - 11 PM','3 PM - 11 PM','OFF','OFF','2 PM - 10 PM','2 PM - 10 PM','2 PM - 10 PM','3 PM - 11 PM','OFF','2 PM - 10 PM','2 PM - 10 PM','OFF','2 PM - 10 PM','2 PM - 10 PM','3 PM - 11 PM','OFF','1 PM - 9 PM','1 PM - 9 PM','OFF','2 PM - 10 PM','2 PM - 10 PM','OFF','OFF','OFF','OFF','2 PM - 10 PM','2 PM - 10 PM','2 PM - 10 PM','3 PM - 11 PM','3 PM - 11 PM','OFF','OFF','2 PM - 10 PM','2 PM - 10 PM','2 PM - 10 PM','3 PM - 11 PM','OFF','1 PM - 9 PM']},
+  {n:'Justin Petrille',tz:'PST',s:['1 PM - 9 PM','12 PM - 8 PM','OFF','12 PM - 8 PM','12 PM - 8 PM','12 PM - 8 PM','OFF','12 PM - 8 PM','12:30 PM - 8:30 PM','OFF','12 PM - 8 PM','OFF','12:30 PM - 8:30 PM','3 PM - 11 PM','OFF','OFF','3 PM - 8:30 PM','12 PM - 8 PM','12 PM - 8 PM','12 PM - 8 PM','3 PM - 11 PM','OFF','OFF','12:30 PM - 8:30 PM','12 PM - 8 PM','12 PM - 8 PM','3 PM - 11 PM','3 PM - 11 PM','OFF','OFF','12 PM - 8 PM','12 PM - 8 PM','12 PM - 8 PM','12 PM - 8 PM','OFF','3 PM - 11 PM','12:30 PM - 8:30 PM','OFF','12 PM - 8 PM','12 PM - 8 PM','12 PM - 8 PM','3 PM - 11 PM','OFF']},
+  {n:'Ryan Hardgrove',tz:'NJ',s:['OFF','OFF','12 PM - 8 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','8:30 AM - 4:30 PM','OFF','OFF','8:30 AM - 4:30 PM','OFF','8:30 AM - 4:30 PM','8:30 AM - 4:30 PM','8:30 AM - 4:30 PM','8:30 AM - 4:30 PM','8:30 AM - 4:30 PM','OFF','8:30 AM - 4:30 PM','8:30 AM - 4:30 PM','8:30 AM - 4:30 PM','8:30 AM - 4:30 PM','OFF','OFF','8:30 AM - 4:30 PM','OFF','8:30 AM - 4:30 PM','8:30 AM - 4:30 PM','8:30 AM - 4:30 PM','12 PM - 8 PM','12:30 PM - 8:30 PM','OFF','8:30 AM - 4:30 PM','8:30 AM - 4:30 PM','8:30 AM - 4:30 PM','8:30 AM - 4:30 PM','OFF','OFF','8:30 AM - 4:30 PM','8:30 AM - 4:30 PM','8:30 AM - 4:30 PM','8:30 AM - 4:30 PM','8:30 AM - 4:30 PM','OFF']},
+  {n:'Zara Broomby',tz:'AUS',s:['7 PM - 3 AM','7 PM - 3 AM','7 PM - 3 AM','7 PM - 3 AM','7 PM - 3 AM','OFF','OFF','7 PM - 3 AM','7 PM - 3 AM','7 PM - 3 AM','7 PM - 3 AM','7 PM - 3 AM','OFF','OFF','7 PM - 3 AM','7 PM - 3 AM','7 PM - 3 AM','7 PM - 3 AM','7 PM - 3 AM','OFF','OFF','7 PM - 3 AM','7 PM - 3 AM','7 PM - 3 AM','7 PM - 3 AM','7 PM - 3 AM','OFF','OFF','7 PM - 3 AM','7 PM - 3 AM','7 PM - 3 AM','7 PM - 3 AM','7 PM - 3 AM','OFF','OFF','OFF','7 PM - 3 AM','7 PM - 3 AM','7 PM - 3 AM','7 PM - 3 AM','OFF','OFF','7 PM - 3 AM']}
+];
+const G2=[
+  {n:'Chad Rowley',tz:'EDT',s:['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']},
+  {n:'Glen Belekis',tz:'EDT',s:['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']},
+  {n:'Will Schleichert',tz:'PST',s:['OFF','OFF','1 PM - 9 PM','12 PM - 8 PM','1 PM - 9 PM','1 PM - 9 PM','1 PM - 9 PM','OFF','OFF','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']},
+  {n:'Dylan Mendelowitz',tz:'CDT',s:['OFF','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','OFF','OFF','9 AM - 5 PM','9 AM - 5 PM','OFF','9 AM - 5 PM','OFF','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','OFF','9 AM - 5 PM','9 AM - 5 PM','OFF','OFF','OFF','OFF']},
+  {n:'Guerick Delcham',tz:'EDT',s:['9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','OFF','9 AM - 5 PM','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','9 AM - 5 PM','9 AM - 5 PM','OFF','9 AM - 5 PM','OFF','9 AM - 5 PM','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','OFF','9 AM - 5 PM','9 AM - 5 PM','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','9 AM - 5 PM','9 AM - 5 PM','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','9 AM - 5 PM','9 AM - 5 PM']},
+  {n:'Brian Bentley',tz:'PST',s:['OFF','OFF','OFF','OFF','OFF','OFF','OFF','OFF','12 PM - 8 PM','10 AM - 6 PM','10 AM - 6 PM','10 AM - 6 PM','10 AM - 6 PM','OFF','OFF','12 PM - 8 PM','10 AM - 6 PM','10 AM - 6 PM','OFF','10 AM - 6 PM','OFF','OFF','OFF','OFF','OFF','10 AM - 6 PM','10 AM - 6 PM','10 AM - 6 PM','10 AM - 6 PM','12 PM - 8 PM','10 AM - 6 PM','10 AM - 6 PM','10 AM - 6 PM','10 AM - 6 PM','OFF','OFF','12 PM - 8 PM','10 AM - 6 PM','12 PM - 8 PM','10 AM - 6 PM','10 AM - 6 PM','OFF','OFF']},
+  {n:'David Cotts',tz:'EDT',s:['OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','2 PM - 10 PM','OFF','OFF','8 AM - 4 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','2 PM - 10 PM','OFF','OFF','8 AM - 4 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','2 PM - 10 PM','OFF','OFF','8 AM - 4 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','2 PM - 10 PM','OFF','OFF','8 AM - 4 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','2 PM - 10 PM','OFF','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','2 PM - 10 PM','OFF','OFF']},
+  {n:'Eric Milam',tz:'EDT',s:['OFF','1 PM - 9 PM','2 PM - 10 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','OFF','1 PM - 9 PM','2 PM - 10 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','OFF','1 PM - 9 PM','2 PM - 10 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','OFF','1 PM - 9 PM','2 PM - 10 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','OFF','1 PM - 9 PM','2 PM - 10 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','OFF','OFF','OFF','2 PM - 10 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','9 AM - 5 PM']},
+  {n:'Ky Coony',tz:'PST',s:['12 PM - 8 PM','12 PM - 8 PM','12 PM - 8 PM','2 PM - 10 PM','OFF','OFF','12 PM - 8 PM','12 PM - 8 PM','12 PM - 8 PM','12 PM - 8 PM','2 PM - 10 PM','OFF','12 PM - 8 PM','OFF','12 PM - 8 PM','10:30 AM - 6:30 PM','12 PM - 8 PM','2 PM - 10 PM','12 PM - 8 PM','12 PM - 8 PM','OFF','OFF','12 PM - 8 PM','12 PM - 8 PM','2 PM - 10 PM','12 PM - 8 PM','12 PM - 8 PM','OFF','OFF','12 PM - 8 PM','12 PM - 8 PM','2 PM - 10 PM','OFF','12 PM - 8 PM','12 PM - 8 PM','OFF','12 PM - 8 PM','12 PM - 8 PM','2 PM - 10 PM','OFF','12 PM - 8 PM','OFF','12 PM - 8 PM']},
+  {n:'Matt Campion',tz:'EDT',s:['9 AM - 5 PM','OFF','9 AM - 5 PM','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','9 AM - 5 PM','9 AM - 5 PM','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','9 AM - 5 PM','10 AM - 6 PM','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','10 AM - 6 PM','10 AM - 6 PM','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','10 AM - 6 PM','1 PM - 9 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','9 AM - 5 PM','OFF']},
+  {n:'Matt Cerletti',tz:'PST',s:['2 PM - 10 PM','2 PM - 10 PM','12 PM - 8 PM','OFF','OFF','12 PM - 8 PM','2 PM - 10 PM','2 PM - 10 PM','2 PM - 10 PM','12 PM - 8 PM','OFF','OFF','12 PM - 8 PM','2 PM - 10 PM','2 PM - 10 PM','2 PM - 10 PM','12 PM - 8 PM','OFF','OFF','12 PM - 8 PM','2 PM - 10 PM','2 PM - 10 PM','2 PM - 10 PM','12 PM - 8 PM','OFF','OFF','12 PM - 8 PM','2 PM - 10 PM','2 PM - 10 PM','2 PM - 10 PM','12 PM - 8 PM','OFF','OFF','12 PM - 8 PM','2 PM - 10 PM','2 PM - 10 PM','2 PM - 10 PM','12 PM - 8 PM','OFF','OFF','12 PM - 8 PM','2 PM - 10 PM','2 PM - 10 PM']},
+  {n:'Zack Leggett',tz:'EDT',s:['OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','2 PM - 10 PM','OFF','OFF','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','2 PM - 10 PM','OFF','9 AM - 5 PM','OFF','9 AM - 5 PM','9 AM - 5 PM','OFF','2 PM - 10 PM','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','2 PM - 10 PM','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','OFF','2 PM - 10 PM','OFF','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','9 AM - 5 PM','2 PM - 10 PM','OFF','9 AM - 5 PM','OFF']}
+];
+const G3=[
+  {n:'Bryan Dorr',tz:'PDX',s:['OFF','OFF','OFF','10 AM - 8 PM','10 AM - 8 PM','10 AM - 8 PM','10 AM - 8 PM','OFF','OFF','OFF','10 AM - 8 PM','10 AM - 8 PM','10 AM - 8 PM','10 AM - 8 PM','OFF','OFF','OFF','OFF','OFF','OFF','OFF','OFF','OFF','11 AM - 7 PM','11 AM - 7 PM','11 AM - 7 PM','11 AM - 7 PM','11 AM - 7 PM','OFF','OFF','11 AM - 3 PM','11 AM - 3 PM','11 AM - 7 PM','11 AM - 7 PM','11 AM - 7 PM','11 AM - 7 PM','OFF','OFF','10 AM - 8 PM','10 AM - 8 PM','10 AM - 8 PM','10 AM - 8 PM','OFF']},
+  {n:'Bill Caldwell',tz:'PDX',s:['8:30 AM - 6:30 PM','OFF','OFF','OFF','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','OFF','OFF','OFF','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','OFF','OFF','OFF','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','OFF','OFF','OFF','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','OFF','OFF','OFF','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','OFF','OFF','OFF','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM']},
+  {n:'Shawn Brooker',tz:'PDX',s:['OFF','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','OFF','OFF','OFF','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','OFF','OFF','OFF','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','OFF','OFF','OFF','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','OFF','OFF','OFF','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','OFF','OFF','OFF','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','8:30 AM - 6:30 PM','OFF','OFF','OFF']}
+];
+const ALL_EMP=[...G1.map(e=>({...e,g:1})),...G2.map(e=>({...e,g:2})),...G3.map(e=>({...e,g:3}))];
+const PREDICTS=[];
+const EARLY_SPECIALS_DATES=[];
+// Slack profile IDs — links open profile in Slack app
+const SLACK_IDS={
+  'Aashini Desai':'U025R298FJ8',
+  'Corey Southern':'U01U7PB4E4U',
+  'Elijah Jones':'U03GY2J6PJ5',
+  "Kyle O'Connell":'U0B5TGL2Q95',
+  'Michael Thompson':'U02018HM54K',
+  'Connor Shaw':'U06USMVFTPC',
+  'Niall Connolly':'U02P7Q5HSM7',
+  'Darren Doyle':'U02VB564HEE',
+  'Mahima Munjal':'U0222SQEWBA',
+  'Shane McCabe':'U01DL1ATDGC',
+  'William Eklund':'UDM2S1A2Y',
+  'Cydney Tindal':'U07HFU2AG7P',
+  'Justin Petrille':'U0APFQKTCLU',
+  'Ryan Hardgrove':'U01PS9YCCGM',
+  'Zara Broomby':'U0BA3EJ6G5P',
+  'Chad Rowley':'U6MRKPZL1',
+  'Glen Belekis':'U58BPNA7R',
+  'Will Schleichert':'U05NRE1RJ48',
+  'Dylan Mendelowitz':'U018U3HTGPJ',
+  'Guerick Delcham':'U09STM9BWBC',
+  'Brian Bentley':'U08G7N173K6',
+  'David Cotts':'U6NBXRNMQ',
+  'Eric Milam':'U018U1Y7KCY',
+  'Ky Coony':'U06GJEG10R1',
+  'Matt Campion':'U6U4HB63B',
+  'Matt Cerletti':'ULV81KS77',
+  'Zack Leggett':'U01E17LG3Q9',
+  'Bryan Dorr':'U82KPDH6G',
+  'Bill Caldwell':'UC27DASBW',
+  'Shawn Brooker':'UC49HHG8Z'
+};
+function slackUrl(name){
+  const id=SLACK_IDS[name];
+  return id?`https://flutter.enterprise.slack.com/team/${id}`:null;
+}
+function slackName(name){
+  const url=slackUrl(name);
+  return url?`<a href="${url}" target="_blank" style="color:inherit;text-decoration:none;border-bottom:1px dotted rgba(255,255,255,.25)" onmouseover="this.style.borderBottomColor='var(--blue)'" onmouseout="this.style.borderBottomColor='rgba(255,255,255,.25)'">${name}</a>`:name;
+}
+// Events: key MLB postseason + NBA/NHL openers
+const EVENTS_DATA=[
+  {idx:5, logos:['&#9917;','&#9918;'], title:'MLB Postseason — ALDS/NLDS', detail:'Division Series begin'},
+  {idx:12, logos:['&#9918;'], title:'MLB — ALCS/NLCS Start', detail:'Championship Series begin'},
+  {idx:22, logos:['&#127936;','&#127944;'], title:'NBA Opening Night · NHL Week 1', detail:'New seasons tip off'},
+  {idx:29, logos:['&#9918;','&#127937;'], title:'World Series · F1 COTA GP', detail:'Fall Classic + Formula 1 USGP'},
+  {idx:33, logos:['&#9918;'], title:'MLB World Series — Final Games', detail:''}
+];
+// ── HELPERS ────────────────────────────────────────────
+function getCurrentETMinutes(){
+  const now=new Date();
+  let m=(now.getUTCHours()-4)*60+now.getUTCMinutes();
+  if(m<0) m+=1440;
+  return m;
+}
+function parseShiftWindow(shift){
+  if(!shift) return null;
+  const s=shift.trim().toUpperCase();
+  if(!s||s==='OFF'||s==='HOLIDAY'||s==='ON CALL'||s==='JURY DUTY') return null;
+  const m=s.match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)\s*[-–]\s*(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/);
+  if(!m) return null;
+  let sh=parseInt(m[1]),sm=parseInt(m[2]||0),sap=m[3];
+  let eh=parseInt(m[4]),em=parseInt(m[5]||0),eap=m[6];
+  if(sap==='PM'&&sh!==12) sh+=12;
+  if(sap==='AM'&&sh===12) sh=0;
+  if(eap==='PM'&&eh!==12) eh+=12;
+  if(eap==='AM'&&eh===12) eh=0;
+  let start=sh*60+sm, end=eh*60+em;
+  if(end<=start) end+=1440;
+  return {start,end};
+}
+function abbrevShift(shift){
+  return shift.replace(/(\d+(?::\d+)?)\s*(AM|PM)/gi,(_,t,ap)=>{
+    const time=t.replace(/:00$/,'');
+    return time+ap.charAt(0).toLowerCase();
+  }).replace(/\s*-\s*/g,'-');
+}
+function fmtCountdown(mins){
+  if(mins<60) return `${mins}m`;
+  return `${Math.floor(mins/60)}h ${mins%60}m`;
+}
+function shiftClass(shift){
+  if(!shift) return 's-blank';
+  const sl=shift.toLowerCase().trim();
+  if(sl===''||sl==='tbd') return 's-blank';
+  if(sl==='off') return 's-off';
+  if(sl==='holiday'||sl==='on call'||sl==='jury duty') return 's-off';
+  if(sl.startsWith('5 am')||sl.startsWith('6 am')||sl.startsWith('7 am')) return 's-early';
+  if(sl.startsWith('8 am')||sl.startsWith('8:3')||sl.startsWith('9 am')||sl.startsWith('10 am')||sl.startsWith('10:3')||sl.startsWith('11 am')||sl.startsWith('11:3')) return 's-mid';
+  if(sl.startsWith('12 pm')||sl.startsWith('12:3')||sl.startsWith('1 pm')||sl.startsWith('2 pm')||sl.startsWith('3 pm')) return 's-late';
+  if(sl.startsWith('4 pm')||sl.startsWith('5 pm')||sl.startsWith('6 pm')) return 's-night';
+  if(sl.startsWith('7 pm')||sl.startsWith('8 pm')||sl.startsWith('9 pm')||sl.startsWith('10 pm')) return 's-overnight';
+  return 's-mid';
+}
+function findTodayIndex(){
+  const now=new Date();
+  const etNow=new Date(now.getTime()-4*3600000);
+  const m=(etNow.getMonth()+1)+'/'+etNow.getDate();
+  return DATES.findIndex(x=>x.d===m);
+}
+// ── STATE ──────────────────────────────────────────────
+let selectedDay=Math.max(0,findTodayIndex());
+let currentView='table';
+if(selectedDay<0) selectedDay=0;
+// ── CLOCK ──────────────────────────────────────────────
+function updateClock(){
+  const now=new Date();
+  const et=new Date(now.getTime()-4*3600000);
+  const h=et.getUTCHours(),m=et.getUTCMinutes();
+  const ap=h>=12?'PM':'AM';
+  const hh=h%12||12;
+  document.getElementById('etClock').textContent=hh+':'+(m<10?'0':'')+m+' '+ap;
+}
+setInterval(updateClock,1000);updateClock();
+// ── NOTES ──────────────────────────────────────────────
+let modalKey='',modalEl=null;
+function noteKey(name,date){return 'note:'+name+':'+date;}
+function openModal(key,title,el){
+  modalKey=key;modalEl=el;
+  document.getElementById('modalTitle').textContent=title;
+  document.getElementById('modalText').value=localStorage.getItem(key)||'';
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('modalText').focus(),50);
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+function saveNote(){
+  const v=document.getElementById('modalText').value.trim();
+  if(v) localStorage.setItem(modalKey,v); else localStorage.removeItem(modalKey);
+  closeModal();
+  if(modalEl){
+    const dot=modalEl.querySelector('.note-dot');
+    if(v&&!dot){const d=document.createElement('span');d.className='note-dot';modalEl.appendChild(d);}
+    else if(!v&&dot) dot.remove();
+  }
+}
+function clearNote(){
+  localStorage.removeItem(modalKey);closeModal();
+  if(modalEl){const dot=modalEl.querySelector('.note-dot');if(dot)dot.remove();}
+}
+document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+// ── NAV ───────────────────────────────────────────────
+function navDay(dir){selectedDay=Math.max(0,Math.min(42,selectedDay+dir));render();}
+function goToday(){const t=findTodayIndex();if(t>=0)selectedDay=t;render();}
+function setView(v){
+  currentView=v;
+  document.getElementById('tab-table').classList.toggle('active',v==='table');
+  document.getElementById('tab-day').classList.toggle('active',v==='day');
+  document.getElementById('tab-dir').classList.toggle('active',v==='dir');
+  // hide nav controls when in directory
+  const navEls=document.querySelectorAll('.nav-btn,.day-label');
+  navEls.forEach(el=>el.style.display=v==='dir'?'none':'');
+  render();
+}
+// ── RENDER DAY LABEL ──────────────────────────────────
+function updateDayLabel(){
+  const d=DATES[selectedDay];
+  document.getElementById('dayLabel').textContent=d.dy+' '+d.d;
+}
+// ── WHO'S ON ──────────────────────────────────────────
+function renderWhosOn(){
+  const ti=findTodayIndex();
+  if(ti<0){document.getElementById('whosOn').innerHTML='<div class="wo-empty">No data for today</div>';return;}
+  const now=getCurrentETMinutes();
+  const buckets={live:[],soon:[],later:[],done:[]};
+  ALL_EMP.forEach(e=>{
+    const shift=e.s[ti];
+    if(!shift||shift.toUpperCase()==='OFF') return;
+    const w=parseShiftWindow(shift);
+    if(!w) return;
+    const {start,end}=w;
+    let state;
+    // For overnight shifts end > 1440, compare accordingly
+    if(now>=start && now<end) state='live';
+    else if(now<start && (start-now)<=180) state='soon';
+    else if(now<start) state='later';
+    else state='done';
+    buckets[state].push({e,shift,w,state});
+  });
+  let h='';
+  function avClass(g){return g===1?'g1-av':g===2?'g2-av':'g3-av';}
+  function initials(n){return n.split(' ').map(x=>x[0]).join('').substring(0,2).toUpperCase();}
+  if(buckets.live.length){
+    h+=`<div class="wo-section wo-live"><div class="wo-section-head"><span class="pulse"></span>Live Now (${buckets.live.length})</div>`;
+    buckets.live.forEach(({e,shift})=>{
+      const k=noteKey(e.n,DATES[ti].d);
+      const note=localStorage.getItem(k)||'';
+      h+=`<div class="wo-card live"><div class="wo-avatar ${avClass(e.g)}">${initials(e.n)}</div><div class="wo-info"><div class="wo-name">${slackName(e.n)}</div><div class="wo-shift">${shift}${note?` · 📝`:''}${e.tz?' · '+e.tz:''}</div></div><span class="wo-badge live">ON</span></div>`;
+    });
+    h+='</div>';
+  }
+  if(buckets.soon.length){
+    h+=`<div class="wo-section wo-soon"><div class="wo-section-head">⏳ Starting Soon (${buckets.soon.length})</div>`;
+    buckets.soon.sort((a,b)=>a.w.start-b.w.start).forEach(({e,shift,w})=>{
+      const mins=w.start-now;
+      h+=`<div class="wo-card soon"><div class="wo-avatar ${avClass(e.g)}">${initials(e.n)}</div><div class="wo-info"><div class="wo-name">${slackName(e.n)}</div><div class="wo-shift">${shift}</div></div><span class="wo-badge soon">in ${fmtCountdown(mins)}</span></div>`;
+    });
+    h+='</div>';
+  }
+  if(buckets.later.length){
+    h+=`<div class="wo-section wo-later"><div class="wo-section-head">🕐 Later Today (${buckets.later.length})</div>`;
+    buckets.later.sort((a,b)=>a.w.start-b.w.start).forEach(({e,shift,w})=>{
+      const mins=w.start-now;
+      h+=`<div class="wo-card later"><div class="wo-avatar ${avClass(e.g)}">${initials(e.n)}</div><div class="wo-info"><div class="wo-name">${slackName(e.n)}</div><div class="wo-shift">${shift}</div></div><span class="wo-badge later">in ${fmtCountdown(mins)}</span></div>`;
+    });
+    h+='</div>';
+  }
+  if(buckets.done.length){
+    h+=`<div class="wo-section wo-done"><div class="wo-section-head">✓ Done Today (${buckets.done.length})</div>`;
+    buckets.done.forEach(({e,shift})=>{
+      h+=`<div class="wo-card done"><div class="wo-avatar ${avClass(e.g)}">${initials(e.n)}</div><div class="wo-info"><div class="wo-name">${slackName(e.n)}</div><div class="wo-shift">${shift}</div></div><span class="wo-badge done">Done</span></div>`;
+    });
+    h+='</div>';
+  }
+  if(!h) h='<div class="wo-empty">Nobody scheduled today</div>';
+  document.getElementById('whosOn').innerHTML=h;
+}
+setInterval(renderWhosOn,30000);
+// ── TABLE VIEW ────────────────────────────────────────
+function empRow(e,g){
+  const n=e.n,tz=e.tz;
+  const k=noteKey(n,'name');
+  let h=`<tr><td class="emp-name-cell"><div class="emp-name" title="${n}">${n}</div><div class="emp-tz">${tz}</div></td>`;
+  for(let i=0;i<43;i++){
+    const shift=e.s[i];
+    const isToday=(i===findTodayIndex());
+    let cls=shiftClass(shift);
+    if(PREDICTS.includes(n+':'+i)) cls='s-predict';
+    const noteK=noteKey(n,DATES[i].d);
+    const hasNote=!!localStorage.getItem(noteK);
+    const isEarly=EARLY_SPECIALS_DATES.includes(i);
+    let cellContent=shift&&cls!=='s-off'&&cls!=='s-blank'?shift:'';
+    if(cls==='s-off') cellContent='OFF';
+    if(g===3&&cls!=='s-off'&&cls!=='s-blank'&&shift){
+      cellContent=abbrevShift(shift);
+    }
+    h+=`<td class="sc ${cls}${isToday?' s-today':''}" onclick="openModal('${noteK}','${n} — ${DATES[i].dy} ${DATES[i].d}',this)" title="${shift||''}">`;
+    if(isEarly) h+=`<span class="star-badge">★</span>`;
+    if(cellContent) h+=`<div class="sv">${cellContent}</div>`;
+    if(hasNote) h+=`<span class="note-dot"></span>`;
+    h+='</td>';
+  }
+  return h+'</tr>';
+}
+function sectionRow(label){
+  return `<tr class="section-row"><td colspan="44">${label}</td></tr>`;
+}
+function renderTable(){
+  const todayIdx=findTodayIndex();
+  let h='<table class="sched-table"><thead><tr><th class="name-th">Team Member</th>';
+  WEEKS.forEach(w=>{
+    h+=`<th class="wk-header${w.current?' cur':''}" colspan="${w.span}">${w.label}</th>`;
+  });
+  h+='</tr><tr><th class="name-th" style="font-size:9px;color:var(--text3)">TZ</th>';
+  for(let i=0;i<43;i++){
+    const d=DATES[i];
+    const isT=(i===todayIdx);
+    h+=`<th class="day-th${isT?' today':''}"><div class="dn">${d.dy}</div><div class="dd">${d.d}</div></th>`;
+  }
+  h+='</tr></thead><tbody>';
+  // Events row
+  h+=`<tr class="event-row"><td class="emp-name-cell" style="font-size:9px;color:var(--text3);font-weight:700;">EVENTS</td>`;
+  for(let i=0;i<43;i++){
+    const evs=EVENTS_DATA.filter(e=>e.idx===i);
+    if(evs.length){
+      h+=`<td class="sc s-blank" style="background:rgba(210,153,34,.05)" title="${evs.map(e=>e.title).join(' | ')}">`;
+      evs.forEach(ev=>{ h+=`<div class="ev-pill">${ev.logos.join('')}</div>`; });
+      h+='</td>';
+    } else {
+      h+='<td class="sc s-blank"></td>';
+    }
+  }
+  h+='</tr>';
+  // G1
+  h+=sectionRow('SBK');
+  G1.forEach(e=>{ h+=empRow(e,1); });
+  // G2
+  h+=sectionRow('FlyWheelOps');
+  G2.forEach(e=>{ h+=empRow(e,2); });
+  // G3
+  h+=sectionRow('Racing Ops');
+  G3.forEach(e=>{ h+=empRow(e,3); });
+  h+='</tbody></table>';
+  return h;
+}
+// ── DAY VIEW ──────────────────────────────────────────
+function renderDayView(){
+  const i=selectedDay;
+  const d=DATES[i];
+  const ti=findTodayIndex();
+  const isToday=(i===ti);
+  const nowM=isToday?getCurrentETMinutes():-1;
+  let h=`<div class="day-view"><div class="dv-head">${d.dy} · ${d.d}</div>`;
+  function renderSection(arr,label,g){
+    const working=arr.filter(e=>{
+      const s=e.s[i];
+      return s&&s.toUpperCase()!=='OFF'&&s!=='';
+    });
+    const off=arr.filter(e=>{
+      const s=e.s[i];
+      return !s||s.toUpperCase()==='OFF';
+    });
+    h+=`<div class="dv-section"><div class="dv-section-title">${label}</div>`;
+    if(!working.length&&!off.length){h+='<div style="color:var(--text3);font-size:11px">No data</div>';}
+    working.forEach(e=>{
+      const shift=e.s[i];
+      const w=parseShiftWindow(shift);
+      let stateBadge='';
+      if(isToday&&w){
+        if(nowM>=w.start&&nowM<w.end) stateBadge='<span class="wo-badge live" style="margin-left:8px">LIVE</span>';
+        else if(nowM<w.start&&w.start-nowM<=180) stateBadge=`<span class="wo-badge soon" style="margin-left:8px">in ${fmtCountdown(w.start-nowM)}</span>`;
+      }
+      h+=`<div class="dv-row"><div class="dv-name">${e.n}</div><div class="dv-shift">${shift}${e.tz?' · '+e.tz:''}</div>${stateBadge}</div>`;
+    });
+    if(off.length){
+      h+='<div style="margin-top:6px">';
+      off.forEach(e=>{h+=`<div class="dv-row dv-off"><div class="dv-name">${e.n}</div><div class="dv-shift">${e.s[i]||'–'}</div></div>`;});
+      h+='</div>';
+    }
+    h+='</div>';
+  }
+  renderSection(G1,'SBK',1);
+  renderSection(G2,'FlyWheelOps',2);
+  renderSection(G3,'Racing Ops',3);
+  h+='</div>';
+  return h;
+}
+// ── RENDER ────────────────────────────────────────────
+function render(){
+  updateDayLabel();
+  renderWhosOn();
+  const c=document.getElementById('mainContent');
+  if(currentView==='table') c.innerHTML=renderTable();
+  else if(currentView==='day') c.innerHTML=renderDayView();
+  else c.innerHTML=renderDirectory();
+}
+// ── DIRECTORY DATA ────────────────────────────────────
+const DIR_PEOPLE=[
+  // ─ Director ─
+  {id:'U06DGPAJXTQ',n:'Claudia Baim',       title:'Director, Merchandising Operations', tz:'CET', team:'Director',    reportsTo:null},
+  // ─ Leadership ─
+  {id:'U6MRKPZL1',  n:'Chad Rowley',        title:'Senior Manager, Operations',     tz:'EDT', team:'Leadership',  reportsTo:'Claudia Baim'},
+  {id:'U58BPNA7R',  n:'Glen Belekis',       title:'Senior Manager, Enablement',     tz:'EDT', team:'Leadership',  reportsTo:'Claudia Baim'},
+  {id:'UDK56EPPX',  n:'Matthew Whelan',     title:'Senior Manager, Operations',     tz:'EDT', team:'Leadership',  reportsTo:'Claudia Baim'},
+  // ─ Management ─
+  {id:'U05NRE1RJ48',n:'Will Schleichert',   title:'Manager, Operations',            tz:'PST', team:'Ops Mgmt',    reportsTo:'Chad Rowley'},
+  {id:'U02018HM54K',n:'Michael Thompson',   title:'Manager, Enablement',            tz:'EDT', team:'Leadership',  reportsTo:'Claudia Baim'},
+  // ─ Team Leads ─
+  {id:'U025R298FJ8',n:'Aashini Desai',      title:'Team Lead, Operations',          tz:'EDT', team:'SBK',         reportsTo:'Will Schleichert'},
+  {id:'UDM2S1A2Y',  n:'William Eklund',     title:'Team Lead, Operations',          tz:'PST', team:'SBK',         reportsTo:'Will Schleichert'},
+  {id:'U018U3HTGPJ',n:'Dylan Mendelowitz',  title:'Team Lead, Operations',          tz:'CDT', team:'Ops Mgmt',    reportsTo:'Chad Rowley'},
+  {id:'U6NBXRNMQ',  n:'David Cotts',        title:'Team Lead, Operations',          tz:'EDT', team:'FlyWheel',    reportsTo:'Will Schleichert'},
+  {id:'U018U1Y7KCY',n:'Eric Milam',         title:'Team Lead, Operations',          tz:'EDT', team:'FlyWheel',    reportsTo:'Will Schleichert'},
+  {id:'U6U4HB63B',  n:'Matt Campion',       title:'Team Lead, Operations',          tz:'EDT', team:'FlyWheel',    reportsTo:'Will Schleichert'},
+  {id:'U82KPDH6G',  n:'Bryan Dorr',         title:'Shift Lead, Racing Ops',         tz:'PST', team:'Racing',      reportsTo:'Chad Rowley'},
+  // ─ SBK Associates / Coordinators ─
+  {id:'U01U7PB4E4U',n:'Corey Southern',     title:'Sr. Associate, Enablement',      tz:'PST', team:'SBK',         reportsTo:'Michael Thompson'},
+  {id:'U03GY2J6PJ5',n:'Elijah Jones',       title:'Sr. Associate, Enablement',      tz:'EDT', team:'SBK',         reportsTo:'Michael Thompson'},
+  {id:'U0B5TGL2Q95',n:"Kyle O'Connell",     title:'Associate, Operations',          tz:'EDT', team:'SBK',         reportsTo:'Aashini Desai'},
+  {id:'U06USMVFTPC',n:'Connor Shaw',        title:'Workspace Associate',            tz:'EDT', team:'SBK',         reportsTo:'Aashini Desai'},
+  {id:'U02P7Q5HSM7',n:'Niall Connolly',     title:'Manager, Content Ops',           tz:'Ireland', team:'SBK',     reportsTo:'Will Schleichert'},
+  {id:'U02VB564HEE',n:'Darren Doyle',       title:'Content Specialist',             tz:'Ireland', team:'SBK',     reportsTo:'Niall Connolly'},
+  {id:'U0222SQEWBA',n:'Mahima Munjal',      title:'Content Specialist',             tz:'Ireland', team:'SBK',     reportsTo:'Niall Connolly'},
+  {id:'U01DL1ATDGC',n:'Shane McCabe',       title:'Content Ops Executive',          tz:'Ireland', team:'SBK',     reportsTo:'Niall Connolly'},
+  {id:'UDM2S1A2Y',  n:'William Eklund',     title:'Team Lead, Operations',          tz:'PST', team:'SBK',         reportsTo:'Will Schleichert'},
+  {id:'U07HFU2AG7P',n:'Cydney Tindal',      title:'Associate, Operations',          tz:'PST', team:'SBK',         reportsTo:'William Eklund'},
+  {id:'U0APFQKTCLU',n:'Justin Petrille',    title:'Coordinator, Operations',        tz:'PST', team:'SBK',         reportsTo:'William Eklund'},
+  {id:'U01PS9YCCGM',n:'Ryan Hardgrove',     title:'Coordinator, Operations',        tz:'EDT', team:'SBK',         reportsTo:'Aashini Desai'},
+  {id:'U0BA3EJ6G5P',n:'Zara Broomby',       title:'Associate, Operations',          tz:'AUS', team:'SBK',         reportsTo:'William Eklund'},
+  // ─ FlyWheel Associates / Coordinators ─
+  {id:'U6MRKPZL1',  n:'Chad Rowley',        title:'Senior Manager, Operations',     tz:'EDT', team:'FlyWheel',    reportsTo:null},
+  {id:'U58BPNA7R',  n:'Glen Belekis',       title:'Senior Manager, Enablement',     tz:'EDT', team:'FlyWheel',    reportsTo:null},
+  {id:'U09STM9BWBC',n:'Guerick Delcham',    title:'Coordinator, Operations',        tz:'EDT', team:'FlyWheel',    reportsTo:'David Cotts'},
+  {id:'U08G7N173K6',n:'Brian Bentley',      title:'Coordinator, Operations',        tz:'PST', team:'FlyWheel',    reportsTo:'Dylan Mendelowitz'},
+  {id:'U06GJEG10R1',n:'Ky Coony',           title:'Associate, Operations',          tz:'PST', team:'FlyWheel',    reportsTo:'Eric Milam'},
+  {id:'ULV81KS77',  n:'Matt Cerletti',      title:'Associate, Operations',          tz:'PST', team:'FlyWheel',    reportsTo:'Matt Campion'},
+  {id:'U01E17LG3Q9',n:'Zack Leggett',       title:'Associate, Operations',          tz:'EDT', team:'FlyWheel',    reportsTo:'David Cotts'},
+  // ─ Racing Ops ─
+  {id:'UC27DASBW',  n:'Bill Caldwell',      title:'Associate, Content Ops',         tz:'PST', team:'Racing',      reportsTo:'Bryan Dorr'},
+  {id:'UC49HHG8Z',  n:'Shawn Brooker',      title:'Associate, Content Ops',         tz:'PST', team:'Racing',      reportsTo:'Bryan Dorr'},
+];
+
+// Dedupe by Slack ID (William Eklund, Chad, Glen appear in multiple groups)
+const DIR_UNIQUE=[];
+const _seen=new Set();
+for(const p of DIR_PEOPLE){
+  const key=p.id+p.n;
+  if(!_seen.has(key)){_seen.add(key);DIR_UNIQUE.push(p);}
+}
+
+// ── DIRECTORY RENDERER ────────────────────────────────
+function renderDirectory(){
+  const LEVELS=[
+    {key:'Leadership', label:'Leadership', color:'var(--purple)'},
+    {key:'Ops Mgmt',   label:'Operations Management', color:'var(--blue)'},
+    {key:'Enable Mgmt',label:'Enablement Management', color:'var(--blue)'},
+  ];
+  const TEAMS=[
+    {key:'SBK',      label:'SBK — Sportsbook', color:'var(--blue)'},
+    {key:'FlyWheel', label:'FlyWheel+ Ops',    color:'var(--green2)'},
+    {key:'Racing',   label:'Racing Ops',       color:'var(--orange)'},
+  ];
+
+  let dirSearch='';
+  function card(p){
+    const initials=p.n.split(' ').map(x=>x[0]).join('').substring(0,2).toUpperCase();
+    const grp=p.team==='Director'?'dir-av':p.team==='Leadership'?'lead-av':p.team==='SBK'?'g1-av':p.team==='Racing'?'g3-av':'g2-av';
+    const slack=`https://flutter.enterprise.slack.com/team/${p.id}`;
+    const ti=findTodayIndex();
+    const empData=ALL_EMP.find(e=>e.n===p.n);
+    const todayShift=empData&&ti>=0?empData.s[ti]:'';
+    const shiftBadge=todayShift&&todayShift!=='OFF'?
+      `<span style="font-size:9px;background:rgba(88,166,255,.12);color:var(--blue);border-radius:8px;padding:1px 7px;margin-left:6px">${todayShift}</span>`:'';
+    const rpt=p.reportsTo?`<div style="font-size:10px;color:var(--text3);margin-top:2px">↳ reports to ${p.reportsTo}</div>`:'';
+    return `<a href="${slack}" target="_blank" style="text-decoration:none;color:inherit">
+      <div class="dir-card">
+        <div class="wo-avatar ${grp}" style="width:36px;height:36px;font-size:13px;flex-shrink:0">${initials}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;display:flex;align-items:center;flex-wrap:wrap;gap:4px">${p.n}${shiftBadge}</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:1px">${p.title}</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:1px">${p.tz}</div>
+          ${rpt}
+        </div>
+        <span style="font-size:18px;opacity:.25;flex-shrink:0">→</span>
+      </div>
+    </a>`;
+  }
+
+  // Build org tree view
+  function orgLevel(label, color, members){
+    if(!members.length) return '';
+    let h=`<div style="margin-bottom:22px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:${color};margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid var(--border)">${label}</div>
+      <div class="dir-grid">`;
+    members.forEach(p=>{ h+=card(p); });
+    h+='</div></div>';
+    return h;
+  }
+
+  const director=DIR_UNIQUE.filter(p=>p.team==='Director');
+  const lead=DIR_UNIQUE.filter(p=>p.team==='Leadership');
+  const mgmt=DIR_UNIQUE.filter(p=>p.team==='Ops Mgmt'||p.team==='Enable Mgmt');
+  const leads=DIR_UNIQUE.filter(p=>p.title.toLowerCase().includes('lead')&&!p.team.includes('Mgmt')&&!p.team.includes('Leadership')&&p.team!=='Director');
+  const rest=DIR_UNIQUE.filter(p=>!director.includes(p)&&!lead.includes(p)&&!mgmt.includes(p)&&!leads.includes(p));
+  const sbk=rest.filter(p=>p.team==='SBK');
+  const fly=rest.filter(p=>p.team==='FlyWheel');
+  const racing=rest.filter(p=>p.team==='Racing');
+
+  let h=`<div style="padding:4px 0 20px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      <input id="dirSearch" type="text" placeholder="Search by name or title…" oninput="filterDir(this.value)"
+        style="flex:1;background:var(--navy3);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 12px;font-size:13px;max-width:340px">
+      <span style="font-size:12px;color:var(--text3)">${DIR_UNIQUE.length} people</span>
+    </div>
+    <div id="dirContent">`;
+  h+=orgLevel('Director', 'var(--yellow)', director);
+  h+=orgLevel('Leadership', 'var(--purple)', lead);
+  h+=orgLevel('Management', 'var(--blue)', mgmt);
+  h+=orgLevel('Team Leads', 'var(--green2)', leads);
+  h+=orgLevel('SBK — Sportsbook', 'var(--blue)', sbk);
+  h+=orgLevel('FlyWheel+ Ops', 'var(--green2)', fly);
+  h+=orgLevel('Racing Ops', 'var(--orange)', racing);
+  h+=`</div></div>`;
+  return h;
+}
+function filterDir(q){
+  const ql=q.toLowerCase().trim();
+  const cards=document.querySelectorAll('.dir-card');
+  cards.forEach(c=>{
+    const txt=c.innerText.toLowerCase();
+    c.closest('a').style.display=(!ql||txt.includes(ql))?'':'none';
+  });
+}
+
+render();
+// Refresh Who's On every 30s (clock already ticks every 1s)
+</script>
+</body>
+</html>
